@@ -15,4 +15,22 @@ services:
     environment:
       KAFKA_CREATE_TOPICS: "events:1:1,error:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9092:9092"
 
+#  goapp:
+#    image: golang:latest
+#    depends_on:
+#      - kafka
+#    volumes:
+#      - .:/app
+#    working_dir: /app
+#    command: go run app/simpleconsumer.go
+
+  goapp:
+    build: .
+    hostname: goapp
+    depends_on:
+      - kafka
+    environment:
+      BOOTSTRAP_SERVERS: "172.17.0.1:9092"

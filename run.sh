@@ -28,3 +28,7 @@ docker exec -it $(docker-compose ps -q kafka) kafka-topics.sh --zookeeper zookee
 # List topic configuration in Kafka
  docker exec -it $(docker-compose ps -q kafka) kafka-topics.sh --zookeeper zookeeper:2181  --describe
 
+
+## new solution
+docker-compose -f platform.yml up
+go run app/simpleconsumer.go
