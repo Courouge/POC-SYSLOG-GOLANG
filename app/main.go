@@ -6,14 +6,49 @@ import (
     "context"
     "strings"
     "net/http"
+	"time"
+    "github.com/logrusorgru/grokky"
 
     log "github.com/Sirupsen/logrus"
     "github.com/prometheus/client_golang/prometheus"
     "github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+//Define the metrics we wish to expose
+var    fooMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "foo_metric", Help: "current offset app"})
+
+var    barMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+	Name: "bar_metric", Help: "Shows whether a bar has occurred in our cluster"})
+
+
+
+func createHost() grokky.Host {
+	h := grokky.New()
+	// add patterns to the Host
+	h.Must("YEAR", `(?:\d\d){1,2}`)
+	h.Must("MONTHNUM2", `0[1-9]|1[0-2]`)
+	h.Must("MONTHDAY", `(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9]`)
+	h.Must("HOUR", `2[0123]|[01]?[0-9]`)
+	h.Must("MINUTE", `[0-5][0-9]`)
+	h.Must("SECOND", `(?:[0-5]?[0-9]|60)(?:[:.,][0-9]+)?`)
+	h.Must("TIMEZONE", `Z%{HOUR}:%{MINUTE}`)
+	h.Must("DATE", "%{YEAR:year}-%{MONTHNUM2:month}-%{MONTHDAY:day}")
+	h.Must("TIME", "%{HOUR:hour}:%{MINUTE:min}:%{SECOND:sec}")
+	return h
+}
+
 func main() {
-    //fmt.Printf("start main function\n")
+	h := createHost()
+	// compile the pattern for RFC3339 time
+	p, err := h.Compile("%{DATE:date}T%{TIME:time}%{TIMEZONE:tz}")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for k, v := range p.Parse(time.Now().Format(time.RFC3339)) {
+		fmt.Printf("%s: %v\n", k, v)
+	}
+
     go prometheus_exporter()
     consumer()
 }
@@ -41,6 +76,8 @@ for {
     stringSlice := strings.Split(string(m.Value), "|")
     fmt.Printf("%s\n",stringSlice)
     producer(string(m.Value))
+    fooMetric.Set(float64(m.Offset))
+    barMetric.Set(1)
 
 }
 
@@ -69,20 +106,14 @@ func prometheus_exporter() {
 }
 
 func init(){
-//Define the metrics we wish to expose
-var fooMetric = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "foo_metric", Help: "current offset app"})
-
-var barMetric = prometheus.NewGauge(prometheus.GaugeOpts{
-	Name: "bar_metric", Help: "Shows whether a bar has occurred in our cluster"})
 
 	//Register metrics with prometheus
 	prometheus.MustRegister(fooMetric)
 	prometheus.MustRegister(barMetric)
 
 	//Set fooMetric to 1
-	fooMetric.Set(0)
+	//fooMetric.Set(0)
 
 	//Set barMetric to 0
-	barMetric.Set(1)
+	//barMetric.Set(1)
 }
