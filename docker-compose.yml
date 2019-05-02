@@ -27,10 +27,10 @@ services:
 #    working_dir: /app
 #    command: go run app/simpleconsumer.go
 
-  goapp:
-    build: .
-    hostname: goapp
-    depends_on:
-      - kafka
-    environment:
-      BOOTSTRAP_SERVERS: "172.17.0.1:9092"
+#  goapp:
+#    build: .
+#    hostname: goapp
+#    depends_on:
+#      - kafka
+#    environment:
+#      BOOTSTRAP_SERVERS: "172.17.0.1:9092"

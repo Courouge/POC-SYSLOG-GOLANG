@@ -13,7 +13,7 @@ services:
     hostname: kafka
     environment:
       KAFKA_CREATE_TOPICS: "events:1:1" # topic:partition:replicas
-      KAFKA_ADVERTISED_HOST_NAME: kafka # docker-machine ip
+      KAFKA_ADVERTISED_HOST_NAME: localhost # localhost or kafka  docker-machine ip
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_PORT: 9092
     volumes:

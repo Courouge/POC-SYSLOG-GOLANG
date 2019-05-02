@@ -12,7 +12,7 @@ func main() {
 
 // make a new reader that consumes from topic-A, partition 0, at offset 42
 r := kafka.NewReader(kafka.ReaderConfig{
-    Brokers:   []string{"172.17.0.1:9092"},
+    Brokers:   []string{"localhost:9092"},
     Topic:     "events",
     Partition: 0,
     MinBytes:  10e3, // 10KB
